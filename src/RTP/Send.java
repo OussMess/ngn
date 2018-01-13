@@ -32,41 +32,47 @@ import javax.media.protocol.DataSource;
 
 
 public class Send {
-    static final Format[] FORMATS = new Format[]{new AudioFormat(AudioFormat.ULAW_RTP)}; //Ulaw_RTP
-    static final ContentDescriptor CONTENT_DESCRIPTOR = new ContentDescriptor(ContentDescriptor.RAW_RTP);
-    public void send( String ipAdress) throws MalformedURLException, IOException, NoDataSourceException, NoProcessorException, CannotRealizeException, NoDataSinkException {
+    private static final Format[] FORMATS = new Format[]{new AudioFormat(AudioFormat.ULAW_RTP)}; //Ulaw_RTP
+    private static final ContentDescriptor CONTENT_DESCRIPTOR = new ContentDescriptor(ContentDescriptor.RAW_RTP);
+    private DataSink dataSink;
 
+    public Send(String ipDest) {
+        try{
+            // media source = microphone
+            MediaLocator locator = new MediaLocator("javasound://0");
 
-        //media formats needed to build RTP stream
+            // creating a source that will be used in creating the processor
+            DataSource source = Manager.createDataSource(locator);
 
+            //creating the processor form the source and formats that we want (RTP)
+            Processor mediaProcessor = Manager.createRealizedProcessor(new ProcessorModel(source, FORMATS, CONTENT_DESCRIPTOR));
 
+            // this is the output medialocator : ip, port and data type  //to
+            MediaLocator outputMediaLocator = new MediaLocator("rtp://"+ ipDest +":10000/audio");
 
-        // media source = microphone
-        MediaLocator locator = new MediaLocator("javasound://0");
+            // now , we are creating a datasink from the processor's output datasource and send it to output locator
+            dataSink = Manager.createDataSink(mediaProcessor.getDataOutput(), outputMediaLocator);
 
-        // creating a source that will be used in creating the processor
-        DataSource source = Manager.createDataSource(locator);
+            // start the processor
+            mediaProcessor.start();
+            System.out.println("Transmiting...");
+        }
+        catch (Exception ex){
+            ex.getStackTrace();
+        }
+    }
 
-        //creating the processor form the source and formats that we want (RTP)
-        Processor mediaProcessor = Manager.createRealizedProcessor(new ProcessorModel(source, FORMATS, CONTENT_DESCRIPTOR));
-
-        // this is the output medialocator : ip, port and data type  //to
-        MediaLocator outputMediaLocator = new MediaLocator("rtp://"+ ipAdress +":10000/audio");
-
-        // now , we are creating a datasink from the processor's output datasource and send it to output locator
-        DataSink dataSink = Manager.createDataSink(mediaProcessor.getDataOutput(), outputMediaLocator);
-
-        // start the processor
-        mediaProcessor.start();
-
-        //open connection
+    public void open() throws IOException, SecurityException {
         dataSink.open();
+    }
 
+    public void start() throws IOException {
         //start streaming the RTP data
         dataSink.start();
+    }
 
-        System.out.println("Transmiting...");
-
+    public void close() {
+        dataSink.close();
     }
 }
 

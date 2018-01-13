@@ -1,6 +1,7 @@
 package sample;
 
 import RTP.Receive;
+import RTP.Send;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -36,7 +37,7 @@ public class Controller  implements Initializable{
     @FXML
     private TextField destadr;
     static Receive receive = null;
-
+    static Send send = null;
 
 
 

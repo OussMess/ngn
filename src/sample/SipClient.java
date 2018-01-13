@@ -88,11 +88,12 @@ class SipClient implements SipListener {
             this.contactAddress = this.addressFactory.createAddress("sip:" + this.ip + ":" + this.port);
             // Créer le contact header utilisé pour tous les messages SIP.
             this.contactHeader = this.headerFactory.createContactHeader(contactAddress);
-            // Afficher l’adresse IP locale et le port dans le text area.
-            localAdr.setText("sip: " + this.ip + ":" + this.port);
-        } catch (Exception e) {
 
-// Affichage de l’erreur
+            // Afficher l’adresse IP locale et le port dans le text area.
+            localAdr.setText("sip:" + this.ip + ":" + this.port);
+
+        } catch (Exception e) {
+            // Affichage de l’erreur
         }
 
     }
@@ -101,7 +102,6 @@ class SipClient implements SipListener {
 
 
     public void onInvite(javafx.scene.control.TextField destadr) {
-        // A method called when you click on the "Invite" button.
         try {
             // Créer le To Header
             // Obtenir l’adresse de destination à partir du text field.
@@ -153,8 +153,9 @@ class SipClient implements SipListener {
 
             // Afficher le message dans le text area.
             System.out.println("Request sent:\n" + request.toString() + "\n\n");
-            Send send=new Send();
-            send.send(toHeader.getAddress().getURI().toString().split(":")[1]);
+            Controller.send=new Send(destadr.getText().split(":")[1]);
+            Controller.send.open();
+            Controller.send.start();
 
         } catch (Exception e) {
             //Afficher l’erreur en cas de problème.
@@ -246,7 +247,8 @@ class SipClient implements SipListener {
             else if(request.getMethod().equals("ACK")) {
                 // If the request is an ACK.
             }
-            Controller.receive.rec(this.ip);
+            Controller.receive=new Receive(this.ip);
+            Controller.receive.start();
         }
         catch(SipException e) {
             System.out.println("ERROR (SIP): " + e.getMessage());
@@ -272,8 +274,8 @@ class SipClient implements SipListener {
             Request request = dialog.createAck(((CSeqHeader)response.getHeader("CSeq")).getSeqNumber());
             response.setHeader(contactHeader);
             dialog.sendAck(request);
-            Controller.receive=new Receive();
-            Controller.receive.rec(this.ip);
+            Controller.receive=new Receive(this.ip);
+            Controller.receive.start();
         }catch(Exception e)
         {
 
@@ -288,7 +290,8 @@ class SipClient implements SipListener {
             Request request = this.dialog.createRequest("BYE");
             ClientTransaction transaction = this.sipProvider.getNewClientTransaction(request);
             this.dialog.sendRequest(transaction);
-            Controller.receive.stoprec();
+            Controller.receive.close();
+            Controller.send.close();
         } catch (SipException ex) {
             Logger.getLogger(SipClient.class.getName()).log(Level.SEVERE, null, ex);
         } catch (ParseException ex) {
@@ -318,30 +321,6 @@ class SipClient implements SipListener {
     @Override
     public void processDialogTerminated(DialogTerminatedEvent dialogTerminatedEvent) {
 
-    }
-
-
-    public void repondre(ServerTransaction transaction, Request request) {
-        // Get or create the server transaction.
-    try {
-        if (null == transaction) {
-            transaction = this.sipProvider.getNewServerTransaction(request);
-        }
-
-        // Update the SIP message table.
-
-
-        // Process the request and send a response.
-        Response response;
-        response = this.messageFactory.createResponse(200, request);
-        ((ToHeader) response.getHeader("To")).setTag(String.valueOf(this.tag));
-        response.addHeader(this.contactHeader);
-        transaction.sendResponse(response);
-        System.out.println(" / SENT " + response.getStatusCode() + " " + response.getReasonPhrase());
-    }catch (Exception e)
-    {
-        e.printStackTrace();
-    }
     }
 
 }
