@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="jmf-native">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/Desktop/JMF_Lib/jmf-native.jar!/" />
+      <root url="jar://$USER_HOME$/Desktop/JMF_Lib/jmf.jar!/" />
+      <root url="jar://$USER_HOME$/Desktop/JMF_Lib/sound.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
