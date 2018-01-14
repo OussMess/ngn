@@ -153,7 +153,6 @@ class SipClient implements SipListener {
             // Afficher le message dans le text area.
             System.out.println("InviteRequest sent:\n" + request.toString() + "\n\n");
             ChangeWindows.incomingCall(destadr.getText(), true);
-            //ChangeWindows.incomingCall();
             /*
             ControllerHome.send=new Send(destadr.getText().split(":")[1]);
             ControllerHome.send.open();
@@ -298,8 +297,12 @@ class SipClient implements SipListener {
                 Request request = dialog.createAck(((CSeqHeader)response.getHeader("CSeq")).getSeqNumber());
                 response.setHeader(contactHeader);
                 dialog.sendAck(request);
+                ControllerHome.send=new Send(descDest.split(":")[1]);
+                ControllerHome.send.open();
+                ControllerHome.send.start();
                 ControllerHome.receive=new Receive(this.ip);
                 ControllerHome.receive.start();
+
             }catch(Exception e) {
                 e.getStackTrace();
             }
