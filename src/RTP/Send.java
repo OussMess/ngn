@@ -62,13 +62,21 @@ public class Send {
         }
     }
 
-    public void open() throws IOException, SecurityException {
-        dataSink.open();
+    public void open()  {
+        try {
+            dataSink.open();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
-    public void start() throws IOException {
+    public void start()  {
         //start streaming the RTP data
-        dataSink.start();
+        try {
+            dataSink.start();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void close() {

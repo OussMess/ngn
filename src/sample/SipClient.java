@@ -248,6 +248,17 @@ class SipClient implements SipListener {
                     response.addHeader(this.contactHeader);
                     transaction.sendResponse(response);
                     System.out.println("SENT " + response.getStatusCode() + " " + response.getReasonPhrase());
+
+                    new Runnable(){
+
+                        @Override
+                        public void run() {
+
+                            Receive receive=new Receive(ip);
+                            receive.start();
+                        }
+                    }.run();
+
                     ControllerHome.send=new Send(descDest.split(":")[1]);
                     ControllerHome.send.open();
                     ControllerHome.send.start();
@@ -315,6 +326,17 @@ class SipClient implements SipListener {
 
                 ControllerHome.receive=new Receive(this.ip);
                 ControllerHome.receive.start();
+
+                new Runnable(){
+
+                    @Override
+                    public void run() {
+
+                        Send send=new Send(descDest.split(":")[1]);
+                        send.open();
+                        send.start();
+                    }
+                }.run();
 
 
 
