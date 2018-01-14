@@ -152,7 +152,7 @@ class SipClient implements SipListener {
 
             // Afficher le message dans le text area.
             System.out.println("InviteRequest sent:\n" + request.toString() + "\n\n");
-            ChangeWindows.incomingCall(destadr.getText());
+            ChangeWindows.incomingCall(destadr.getText(), true);
             //ChangeWindows.incomingCall();
             /*
             ControllerHome.send=new Send(destadr.getText().split(":")[1]);
@@ -236,7 +236,7 @@ class SipClient implements SipListener {
             // Update the SIP message table.
             if(request.getMethod().equals("INVITE")){
 
-                ChangeWindows.incomingCall(descDest);
+                ChangeWindows.incomingCall(descDest, false);
                 while (ControllerInvite.isAccepted == null)
                     Thread.sleep(100);
                 if(ControllerInvite.isAccepted){
@@ -291,22 +291,22 @@ class SipClient implements SipListener {
         Response response = responseEvent.getResponse();
         String descDest = ((FromHeader)response.getHeader("From")).getAddress().toString();
         System.out.println("RECV " + response.getStatusCode() + " " + descDest);
-
-
-
+        if(response.getStatusCode() == Response.OK){
+            ChangeWindows.controllerInvite.onAccept(null);
+            try{
+                dialog = responseEvent.getClientTransaction().getDialog();
+                Request request = dialog.createAck(((CSeqHeader)response.getHeader("CSeq")).getSeqNumber());
+                response.setHeader(contactHeader);
+                dialog.sendAck(request);
+                ControllerHome.receive=new Receive(this.ip);
+                ControllerHome.receive.start();
+            }catch(Exception e) {
+                e.getStackTrace();
+            }
+        }
         // Afficher le message réponse dans le text area.
         System.out.println("\nReceived response: " + response.toString());
-        try{
-            dialog = responseEvent.getClientTransaction().getDialog();
-            Request request = dialog.createAck(((CSeqHeader)response.getHeader("CSeq")).getSeqNumber());
-            response.setHeader(contactHeader);
-            dialog.sendAck(request);
-            ControllerHome.receive=new Receive(this.ip);
-            ControllerHome.receive.start();
-        }catch(Exception e)
-        {
 
-        }
 
     }
     public void onBye() {

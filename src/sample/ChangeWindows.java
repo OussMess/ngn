@@ -9,9 +9,9 @@ import java.io.IOException;
 
 public class ChangeWindows {
 
+    public static ControllerInvite controllerInvite;
 
-
-    public static void incomingCall(String desc){
+    public static void incomingCall(String desc, boolean type){
         Platform.runLater(new Runnable() {
             @Override
             public void run() {
@@ -26,9 +26,10 @@ public class ChangeWindows {
 
                     Pane pane = (Pane) loader.load();
 
-                    ControllerInvite controller =
+                    ChangeWindows.controllerInvite =
                             loader.<ControllerInvite>getController();
-                    controller.descCaller.setText(desc);
+                    ChangeWindows.controllerInvite.descCaller.setText(desc);
+                    ChangeWindows.controllerInvite.type(type);
                     Main.stage.setScene(new Scene(pane, 300, 550));
 
                 } catch (IOException e) {
