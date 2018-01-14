@@ -12,7 +12,6 @@ import javax.sip.header.*;
 import javax.sip.message.MessageFactory;
 import javax.sip.message.Request;
 import javax.sip.message.Response;
-import java.awt.*;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.text.ParseException;
@@ -26,7 +25,7 @@ import java.util.logging.Logger;
 class SipClient implements SipListener {
 
 
-    private Controller controller;
+    private ControllerHome controllerHome;
     // Objets utiles pour communiquer avec l’API JAIN SIP.
     SipFactory sipFactory;            // Pour acceder à l’API SIP.
     SipStack sipStack;                // Le SIP stack.
@@ -49,8 +48,8 @@ class SipClient implements SipListener {
     private String transport;
     public SdpFactory sdpFactory;  //pour le corps du message SIP (SDP)
 
-    public SipClient(Controller controller) {
-        this.controller = controller;
+    public SipClient(ControllerHome controllerHome) {
+        this.controllerHome = controllerHome;
     }
 
 
@@ -137,7 +136,7 @@ class SipClient implements SipListener {
                     callIdHeader, cSeqHeader, fromHeader,
                     toHeader, viaHeaders, maxForwards);
             // Ajouter l’adresse de contacte.
-            contactAddress.setDisplayName("Alice Contact");
+            contactAddress.setDisplayName("Messaoudi");
 
             contactHeader = headerFactory.createContactHeader(contactAddress);
             request.addHeader(contactHeader);
@@ -152,14 +151,14 @@ class SipClient implements SipListener {
 
 
             // Afficher le message dans le text area.
-            System.out.println("Request sent:\n" + request.toString() + "\n\n");
-            Controller.send=new Send(destadr.getText().split(":")[1]);
-            Controller.send.open();
-            Controller.send.start();
+            System.out.println("InviteRequest sent:\n" + request.toString() + "\n\n");
+            ControllerHome.send=new Send(destadr.getText().split(":")[1]);
+            ControllerHome.send.open();
+            ControllerHome.send.start();
 
         } catch (Exception e) {
             //Afficher l’erreur en cas de problème.
-            System.out.println("Request sent failed: " + e.getMessage() + "\n");
+            System.out.println("InviteRequest sent failed: " + e.getMessage() + "\n");
         }
 
 
@@ -218,11 +217,12 @@ class SipClient implements SipListener {
 
 
     public void processRequest(RequestEvent requestEvent) {
+
         // Get the request.
         Request request = requestEvent.getRequest();
-
-        System.out.println("RECV " + request.getMethod() + " " + request.getRequestURI().toString());
-
+        String descDest = ((FromHeader)request.getHeader("From")).getAddress().toString();
+        System.out.println("RECV " + request.getMethod() + " " + descDest);
+        Response response;
         try {
             // Get or create the server transaction.
             ServerTransaction transaction = requestEvent.getServerTransaction();
@@ -231,24 +231,44 @@ class SipClient implements SipListener {
             }
 
             // Update the SIP message table.
+            if(request.getMethod().equals("INVITE")){
 
+                ChangeWindows.incomingCall(descDest);
+                while (ControllerInvite.isAccepted == null)
+                    Thread.sleep(100);
+                if(ControllerInvite.isAccepted){
+                    System.out.println("Accept Invite");
+                    // If the request is an INVITE & we accepted
+                    response = this.messageFactory.createResponse(200, request);
+                    ((ToHeader)response.getHeader("To")).setTag(String.valueOf(this.tag));
+                    response.addHeader(this.contactHeader);
+                    transaction.sendResponse(response);
+                    System.out.println("SENT " + response.getStatusCode() + " " + response.getReasonPhrase());
+                }
+                else{
+                    System.out.println("Decline Invite");
+                    return;
+                }
+
+
+            }
 
             // Process the request and send a response.
-            Response response;
-            if(request.getMethod().equals("REGISTER") || request.getMethod().equals("INVITE") || request.getMethod().equals("BYE")) {
+
+            /*if(request.getMethod().equals("REGISTER") || request.getMethod().equals("INVITE") || request.getMethod().equals("BYE")) {
                 // If the request is a REGISTER or an INVITE or a BYE.
                 response = this.messageFactory.createResponse(200, request);
                 ((ToHeader)response.getHeader("To")).setTag(String.valueOf(this.tag));
                 response.addHeader(this.contactHeader);
                 transaction.sendResponse(response);
                 System.out.println(" / SENT " + response.getStatusCode() + " " + response.getReasonPhrase());
-            }
+            }*/
 
             else if(request.getMethod().equals("ACK")) {
                 // If the request is an ACK.
             }
-            Controller.receive=new Receive(this.ip);
-            Controller.receive.start();
+            ControllerHome.receive=new Receive(this.ip);
+            ControllerHome.receive.start();
         }
         catch(SipException e) {
             System.out.println("ERROR (SIP): " + e.getMessage());
@@ -274,8 +294,8 @@ class SipClient implements SipListener {
             Request request = dialog.createAck(((CSeqHeader)response.getHeader("CSeq")).getSeqNumber());
             response.setHeader(contactHeader);
             dialog.sendAck(request);
-            Controller.receive=new Receive(this.ip);
-            Controller.receive.start();
+            ControllerHome.receive=new Receive(this.ip);
+            ControllerHome.receive.start();
         }catch(Exception e)
         {
 
@@ -290,8 +310,8 @@ class SipClient implements SipListener {
             Request request = this.dialog.createRequest("BYE");
             ClientTransaction transaction = this.sipProvider.getNewClientTransaction(request);
             this.dialog.sendRequest(transaction);
-            Controller.receive.close();
-            Controller.send.close();
+            ControllerHome.receive.close();
+            ControllerHome.send.close();
         } catch (SipException ex) {
             Logger.getLogger(SipClient.class.getName()).log(Level.SEVERE, null, ex);
         } catch (ParseException ex) {
