@@ -12,24 +12,38 @@ public class ChangeWindows {
     public static ControllerInvite controllerInvite;
 
     public static void incomingCall(String desc, boolean type){
+        setInteface("invite");
         Platform.runLater(new Runnable() {
             @Override
             public void run() {
-                Pane root = null;
+                ChangeWindows.controllerInvite.descCaller.setText(desc);
+                ChangeWindows.controllerInvite.type(type);
+            }
+        });
+
+    }
+    public static void goBack(){
+        setInteface("home");
+    }
+    private static void setInteface(String nameFile){
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+
                 try {
 
                     FXMLLoader loader = new FXMLLoader(
                             getClass().getResource(
-                                    "invite.fxml"
+                                    nameFile + ".fxml"
                             )
                     );
 
                     Pane pane = (Pane) loader.load();
-
-                    ChangeWindows.controllerInvite =
+                    if(nameFile.equals("invite"))
+                        ChangeWindows.controllerInvite =
                             loader.<ControllerInvite>getController();
-                    ChangeWindows.controllerInvite.descCaller.setText(desc);
-                    ChangeWindows.controllerInvite.type(type);
+
+
                     Main.stage.setScene(new Scene(pane, 300, 550));
 
                 } catch (IOException e) {
@@ -37,7 +51,5 @@ public class ChangeWindows {
                 }
             }
         });
-
-
     }
 }

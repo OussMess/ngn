@@ -24,7 +24,6 @@ public class ControllerHome implements Initializable{
 
 
     SipClient sipClient = new SipClient(this);
-
     @FXML
     private Button appeler;
     @FXML
@@ -47,6 +46,10 @@ public class ControllerHome implements Initializable{
 
     public void appler(ActionEvent actionEvent) throws IOException {
         this.sipClient.onInvite( destadr );
+
+
+
+
     }
 
     public void raccrocher(ActionEvent actionEvent) {

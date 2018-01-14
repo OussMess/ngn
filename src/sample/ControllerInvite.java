@@ -33,6 +33,7 @@ public class ControllerInvite implements Initializable {
 
     public static ControllerInvite instance;
     public static Boolean isAccepted = null;
+    public static SipClient sipClient;
     public LocalTime duree = null;
     private MediaPlayer mediaPlayer;
 
@@ -62,7 +63,6 @@ public class ControllerInvite implements Initializable {
                                 instance.timer.setText(duree.format(DateTimeFormatter.ISO_LOCAL_TIME));
                             }
                         });
-                        System.out.println(duree.format(DateTimeFormatter.ISO_LOCAL_TIME));
                         Thread.sleep(1000);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
@@ -76,6 +76,8 @@ public class ControllerInvite implements Initializable {
     public void onDecline(ActionEvent actionEvent) {
         isAccepted = false;
         mediaPlayer.stop();
+        sipClient.onBye();
+
     }
     public void type(boolean isCaller){
         javafx.scene.media.Media sound;

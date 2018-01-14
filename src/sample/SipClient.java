@@ -26,6 +26,7 @@ class SipClient implements SipListener {
 
 
     private ControllerHome controllerHome;
+
     // Objets utiles pour communiquer avec l’API JAIN SIP.
     SipFactory sipFactory;            // Pour acceder à l’API SIP.
     SipStack sipStack;                // Le SIP stack.
@@ -50,6 +51,7 @@ class SipClient implements SipListener {
 
     public SipClient(ControllerHome controllerHome) {
         this.controllerHome = controllerHome;
+        ControllerInvite.sipClient = this;
     }
 
 
@@ -246,6 +248,10 @@ class SipClient implements SipListener {
                     response.addHeader(this.contactHeader);
                     transaction.sendResponse(response);
                     System.out.println("SENT " + response.getStatusCode() + " " + response.getReasonPhrase());
+                    ControllerHome.send=new Send(descDest.split(":")[1]);
+                    ControllerHome.send.open();
+                    ControllerHome.send.start();
+
                 }
                 else{
                     System.out.println("Decline Invite");
@@ -269,8 +275,7 @@ class SipClient implements SipListener {
             else if(request.getMethod().equals("ACK")) {
                 System.out.println("**ACK");
             }
-            ControllerHome.receive=new Receive(this.ip);
-            ControllerHome.receive.start();
+
         }
         catch(SipException e) {
             System.out.println("ERROR (SIP): " + e.getMessage());
@@ -297,11 +302,11 @@ class SipClient implements SipListener {
                 Request request = dialog.createAck(((CSeqHeader)response.getHeader("CSeq")).getSeqNumber());
                 response.setHeader(contactHeader);
                 dialog.sendAck(request);
-                ControllerHome.send=new Send(descDest.split(":")[1]);
-                ControllerHome.send.open();
-                ControllerHome.send.start();
+
                 ControllerHome.receive=new Receive(this.ip);
                 ControllerHome.receive.start();
+
+
 
             }catch(Exception e) {
                 e.getStackTrace();
@@ -320,8 +325,20 @@ class SipClient implements SipListener {
             Request request = this.dialog.createRequest("BYE");
             ClientTransaction transaction = this.sipProvider.getNewClientTransaction(request);
             this.dialog.sendRequest(transaction);
-            ControllerHome.receive.close();
-            ControllerHome.send.close();
+            try{
+                ControllerHome.send.close();
+            }
+            catch (Exception e){
+
+            }
+            try {
+                ControllerHome.receive.close();
+            }
+            catch (Exception ex){
+
+            }
+            ChangeWindows.goBack();
+
         } catch (SipException ex) {
             Logger.getLogger(SipClient.class.getName()).log(Level.SEVERE, null, ex);
         } catch (ParseException ex) {
