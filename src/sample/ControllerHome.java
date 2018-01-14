@@ -23,7 +23,7 @@ public class ControllerHome implements Initializable{
 
 
 
-    SipClient sipClient = new SipClient(this);
+    SipClient sipClient ;
     @FXML
     private Button appeler;
     @FXML
@@ -39,6 +39,7 @@ public class ControllerHome implements Initializable{
 
 
     public void initialize(URL location, ResourceBundle resources) {
+        sipClient = new SipClient(this);
         this.sipClient.onOpen(localadr);
     }
 

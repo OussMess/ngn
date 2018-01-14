@@ -18,7 +18,7 @@ public class Receive {
         try {
          Player Player;     
             // medialocator to receive data from this url : includes the sender that we want to receive data from
-            MediaLocator url = new MediaLocator("rtp://172.20.10.5:10000/audio");
+            MediaLocator url = new MediaLocator("rtp://172.20.10.2:10000/audio");
             
             //creating a player to receive data
             Player = Manager.createRealizedPlayer(url);

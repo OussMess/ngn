@@ -94,7 +94,7 @@ class SipClient implements SipListener {
             localAdr.setText("sip:" + this.ip + ":" + this.port);
 
         } catch (Exception e) {
-            // Affichage de l’erreur
+            e.getStackTrace();
         }
 
     }
@@ -225,7 +225,7 @@ class SipClient implements SipListener {
         // Get the request.
         Request request = requestEvent.getRequest();
         String descDest = ((FromHeader)request.getHeader("From")).getAddress().toString();
-        System.out.println("RECV " + request.getMethod() + " " + descDest);
+        System.out.println("RECV **" + request.getMethod() + " " + descDest);
         Response response;
         try {
             // Get or create the server transaction.
@@ -263,14 +263,24 @@ class SipClient implements SipListener {
 
             // Process the request and send a response.
 
-            /*if(request.getMethod().equals("REGISTER") || request.getMethod().equals("INVITE") || request.getMethod().equals("BYE")) {
-                // If the request is a REGISTER or an INVITE or a BYE.
-                response = this.messageFactory.createResponse(200, request);
-                ((ToHeader)response.getHeader("To")).setTag(String.valueOf(this.tag));
-                response.addHeader(this.contactHeader);
-                transaction.sendResponse(response);
-                System.out.println(" / SENT " + response.getStatusCode() + " " + response.getReasonPhrase());
-            }*/
+            else if(request.getMethod().equals("BYE")) {
+                System.out.println("BBBYYY");
+                try{
+                    ControllerHome.send.close();
+                }
+                catch (Exception e){
+
+                }
+                try {
+                    ControllerHome.receive.close();
+                }
+                catch (Exception ex){
+
+                }
+                ChangeWindows.goBack();
+
+
+            }
 
             else if(request.getMethod().equals("ACK")) {
                 System.out.println("**ACK");
