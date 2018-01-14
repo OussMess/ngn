@@ -46,19 +46,7 @@ public class ControllerHome implements Initializable{
 
 
     public void appler(ActionEvent actionEvent) throws IOException {
-        Alert alert = new Alert(Alert.AlertType.WARNING,"",ButtonType.YES,ButtonType.NO);
-        alert.setTitle("Appel");
-        alert.setHeaderText("Appel from:");
-        Optional<ButtonType> result = alert.showAndWait();
-        if (result.get() == ButtonType.YES){
-            this.sipClient.onInvite( destadr );
-        } else {
-            this.sipClient.onBye();
-        }
-
-
-
-
+        this.sipClient.onInvite( destadr );
     }
 
     public void raccrocher(ActionEvent actionEvent) {

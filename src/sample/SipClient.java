@@ -152,9 +152,12 @@ class SipClient implements SipListener {
 
             // Afficher le message dans le text area.
             System.out.println("InviteRequest sent:\n" + request.toString() + "\n\n");
+            ChangeWindows.incomingCall(destadr.getText());
+            //ChangeWindows.incomingCall();
+            /*
             ControllerHome.send=new Send(destadr.getText().split(":")[1]);
             ControllerHome.send.open();
-            ControllerHome.send.start();
+            ControllerHome.send.start();*/
 
         } catch (Exception e) {
             //Afficher l’erreur en cas de problème.
@@ -265,7 +268,7 @@ class SipClient implements SipListener {
             }*/
 
             else if(request.getMethod().equals("ACK")) {
-                // If the request is an ACK.
+                System.out.println("**ACK");
             }
             ControllerHome.receive=new Receive(this.ip);
             ControllerHome.receive.start();
@@ -284,8 +287,12 @@ class SipClient implements SipListener {
     public void processResponse(ResponseEvent responseEvent) {
         // A method called when you receive a SIP response.
         // Obtenir le message reponse.
-
+        // Get the request.
         Response response = responseEvent.getResponse();
+        String descDest = ((FromHeader)response.getHeader("From")).getAddress().toString();
+        System.out.println("RECV " + response.getStatusCode() + " " + descDest);
+
+
 
         // Afficher le message réponse dans le text area.
         System.out.println("\nReceived response: " + response.toString());

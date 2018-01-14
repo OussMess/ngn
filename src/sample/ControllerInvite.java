@@ -38,10 +38,7 @@ public class ControllerInvite implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        javafx.scene.media.Media sound = new javafx.scene.media.Media(new File("ring.mp3").toURI().toString());
 
-        mediaPlayer = new MediaPlayer(sound);
-        mediaPlayer.play();
     }
 
     public void onAccept(ActionEvent actionEvent) {
@@ -79,6 +76,23 @@ public class ControllerInvite implements Initializable {
     public void onDecline(ActionEvent actionEvent) {
         isAccepted = false;
         mediaPlayer.stop();
+    }
+    public void type(boolean isCaller){
+        javafx.scene.media.Media sound;
+        if(isCaller){
+            btnAccept.setVisible(false);
+            btnDecline.setVisible(true);
+            sound = new javafx.scene.media.Media(new File("caller.mp3").toURI().toString());
+        }
+        else {
+            btnAccept.setVisible(true);
+            btnDecline.setVisible(false);
+            sound = new javafx.scene.media.Media(new File("ring.mp3").toURI().toString());
+
+
+        }
+        mediaPlayer = new MediaPlayer(sound);
+        mediaPlayer.play();
     }
 
 
